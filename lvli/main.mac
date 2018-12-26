@@ -1,0 +1,160 @@
+
+/gate/geometry/setMaterialDatabase    ./GateMaterials.db
+
+
+#=====================================================
+# GEOMETRY
+#=====================================================
+/gate/world/geometry/setXLength         15 cm
+/gate/world/geometry/setYLength         15 cm
+/gate/world/geometry/setZLength         15 cm
+
+/gate/world/daughters/name            OpticalSystem
+/gate/world/daughters/insert          box
+/gate/OpticalSystem/placement/setTranslation    0.0 0.0 0.0 mm
+/gate/OpticalSystem/geometry/setXLength         5.0 cm
+/gate/OpticalSystem/geometry/setYLength         5.0 cm
+/gate/OpticalSystem/geometry/setZLength         5.0 cm
+/gate/OpticalSystem/setMaterial                 Air
+
+/gate/OpticalSystem/daughters/name            crystal
+/gate/OpticalSystem/daughters/insert          box
+/gate/crystal/placement/setTranslation    0.0 0.0 5 mm
+/gate/crystal/geometry/setXLength         30.0 mm
+/gate/crystal/geometry/setYLength         30.0 mm
+/gate/crystal/geometry/setZLength         10.0 mm
+/gate/crystal/setMaterial                 LYSO
+
+/gate/OpticalSystem/daughters/name            pixel
+/gate/OpticalSystem/daughters/insert          box
+/gate/pixel/placement/setTranslation    0.0 0.0 -0.5 mm
+/gate/pixel/geometry/setXLength         3.0 mm
+/gate/pixel/geometry/setYLength         3.0 mm
+/gate/pixel/geometry/setZLength         1.0 mm
+/gate/pixel/setMaterial                 G4_SILICON_DIOXIDE
+
+/gate/systems/OpticalSystem/crystal/attach   crystal
+/gate/systems/OpticalSystem/pixel/attach   pixel
+
+/gate/crystal/attachCrystalSD
+
+
+
+
+
+#=====================================================
+# PHYSICS
+#=====================================================
+/gate/physics/addProcess PhotoElectric
+/gate/physics/processes/PhotoElectric/setModel StandardModel
+
+
+/gate/physics/addProcess Compton
+/gate/physics/processes/Compton/setModel StandardModel
+
+
+/gate/physics/addProcess RayleighScattering
+/gate/physics/processes/RayleighScattering/setModel PenelopeModel
+
+
+/gate/physics/addProcess ElectronIonisation
+/gate/physics/processes/ElectronIonisation/setModel StandardModel e-
+
+/gate/physics/processes/ElectronIonisation/setModel StandardModel e+
+
+
+/gate/physics/addProcess Bremsstrahlung
+/gate/physics/processes/Bremsstrahlung/setModel StandardModel e-
+
+/gate/physics/processes/Bremsstrahlung/setModel StandardModel e+
+
+
+/gate/physics/addProcess eMultipleScattering e+
+
+/gate/physics/addProcess eMultipleScattering e-
+
+/gate/physics/processList Enabled
+/gate/physics/processList Initialized
+
+
+#=====================================================
+# INITIALISATION
+#=====================================================
+/gate/run/initialize
+
+#=====================================================
+# SURFACES
+#=====================================================
+/gate/crystal/surfaces/name                     surface1
+/gate/crystal/surfaces/insert                   OpticalSystem
+/gate/crystal/surfaces/surface1/setSurface    rough_teflon_wrapped  
+
+/gate/OpticalSystem/surfaces/name                     surface2
+/gate/OpticalSystem/surfaces/insert                   crystal
+/gate/OpticalSystem/surfaces/surface2/setSurface    rough_teflon_wrapped  
+
+/gate/crystal/surfaces/name                     Detection1
+/gate/crystal/surfaces/insert                   pixel
+/gate/crystal/surfaces/Detection1/setSurface    perfect_apd  
+
+/gate/pixel/surfaces/name                     Detection2
+/gate/pixel/surfaces/insert                   crystal
+/gate/pixel/surfaces/Detection2/setSurface    perfect_apd  
+
+
+
+#=====================================================
+# DIGITIZER
+#=====================================================
+/gate/digitizer/Singles/insert opticaladder
+
+/gate/digitizer/Singles/insert readout
+/gate/digitizer/Singles/readout/setDepth  1
+
+#=====================================================
+# SOURCE
+#=====================================================
+/gate/source/addSource plane_source
+/gate/source/plane_source/gps/type Plane
+/gate/source/plane_source/gps/shape Rectangle
+/gate/source/plane_source/gps/halfx 150 mm 
+/gate/source/plane_source/gps/halfy 150 mm 
+
+# Placement
+/gate/source/plane_source/gps/centre 0.0 0.0 30.0 mm 
+/gate/source/plane_source/gps/particle gamma 
+/gate/source/plane_source/gps/monoenergy 511 keV
+/gate/source/plane_source/setForcedUnstableFlag true
+/gate/source/plane_source/setForcedHalfLife 6586.2 s
+
+/gate/source/plane_source/setActivity 1000 becquerel
+/gate/source/plane_source/gps/angtype iso
+#/gate/source/plane_source/gps/mintheta 90 deg 
+#/gate/source/plane_source/gps/maxtheta 90 deg
+#/gate/source/plane_source/gps/minphi   0 deg
+#/gate/source/plane_source/gps/maxphi   0 deg
+
+
+
+/gate/source/list
+
+
+#=====================================================
+# PARAMETER
+#=====================================================
+/gate/random/setEngineName MersenneTwister
+/gate/random/setEngineSeed auto
+
+/gate/output/root/enable
+/gate/output/root/setFileName optical
+/gate/output/root/setRootHitFlag 1
+/gate/output/root/setRootSinglesFlag 1
+
+
+
+/gate/application/setTotalNumberOfPrimaries 1000
+/gate/application/start
+
+
+
+

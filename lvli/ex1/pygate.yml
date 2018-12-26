@@ -1,0 +1,39 @@
+analysis: {analysis_type: gamma_edep, source: hits.csv, target: hits.h5}
+clean:
+  is_slurm_outputs: false
+  is_subdirectories: true
+  root_files: []
+dryrun: false
+init:
+  broadcast:
+    no_ext: false
+    targets: [main.mac]
+  external:
+  - {source: /mnt/gluster_NoGPU/share/pygate/GateMaterials.db}
+  - {source: /mnt/gluster_NoGPU/share/pygate/Materials.xml}
+  - {source: /mnt/gluster_NoGPU/share/pygate/Surfaces.xml}
+  - {source: /mnt/gluster_NoGPU/share/pygate/Hits2CSV.C}
+  shell:
+    post_run:
+      gate_version: '8.0'
+      partition: cpu
+      shell_type: bash
+      target: post.sh
+      task:
+      - {method: catpdh5, target: hits.h5, task_name: merge}
+    run:
+      gate_version: '8.0'
+      partition: cpu
+      shell_type: bash
+      target: run.sh
+      task:
+      - {target: main.mac, task_name: gate_simulation}
+      - {root_c_file: Hits2CSV.C, target: optical.root, task_name: root_analysis}
+      - {source: hits.csv, name: gamma_edep, output: hits.h5, task_name: pygate_analysis, subcommand: predefined}
+nb_split: 500
+sub_format: sub.{}
+sub_patterns: [sub*]
+sub_prefix: sub
+submit:
+  broadcast: [run.sh]
+  single: [post.sh]
